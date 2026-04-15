@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getRooms, createRoom, updateRoom, type RoomRequest, type RoomResponse, type RoomType } from "@/API/Rooms";
+import { getBuildings, type BuildingResponse } from "@/API/Bulding";
 import { usePopup } from "@/hooks/usePopup";
 import PopupContainer from "@/Components/ui/PopupContainer";
 import { Lodeing } from "@/Components/ui/Loding";
@@ -8,6 +9,7 @@ const roomTypes: RoomType[] = ["Amphitheatre", "Classroom", "Lab"];
 
 const ManagementRooms = () => {
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
+  const [buildings, setBuildings] = useState<BuildingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -15,19 +17,46 @@ const ManagementRooms = () => {
   const [formData, setFormData] = useState<RoomRequest>({ code: "", building_id: "", type: "Classroom", capacity: 1, name: "" });
   const { popups, show, dismiss } = usePopup();
 
+  // Filter by building
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string>("");
+
   useEffect(() => {
-    const loadRooms = async () => {
-      const result = await getRooms();
-      if (result) {
-        setRooms(result);
+    const loadData = async () => {
+      setLoading(true);
+      const [roomResult, buildingResult] = await Promise.all([
+        getRooms(),
+        getBuildings(),
+      ]);
+
+      if (roomResult) {
+        setRooms(roomResult);
       } else {
         show("Failed to load rooms", "error");
       }
+
+      if (buildingResult) {
+        setBuildings(buildingResult);
+      } else {
+        show("Failed to load buildings", "error");
+      }
+
       setLoading(false);
     };
 
-    loadRooms();
+    loadData();
   }, []);
+
+  // Building name lookup map
+  const buildingMap = useMemo(
+    () => Object.fromEntries(buildings.map((b) => [String(b.id), b])),
+    [buildings]
+  );
+
+  // Filtered rooms by selected building
+  const filteredRooms = useMemo(() => {
+    if (!selectedBuildingId) return rooms;
+    return rooms.filter((r) => String(r.building_id) === String(selectedBuildingId));
+  }, [rooms, selectedBuildingId]);
 
   const handleAddRoom = async () => {
     if (!formData.code || !formData.building_id || !formData.type || formData.capacity <= 0) {
@@ -82,20 +111,38 @@ const ManagementRooms = () => {
   }
 
   return (
-    <div className="min-h-full flex flex-col bg-gray-100 p-6" dir="ltr">
+    <div className="min-h-full flex flex-col bg-gray-100 p-3 sm:p-6" dir="ltr">
       <PopupContainer popups={popups} onDismiss={dismiss} />
 
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Room Management</h1>
-          <p className="text-sm text-gray-500 mt-1">View, create, and update rooms.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Room Management</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">View, create, and update rooms.</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
         >
           Add New Room
         </button>
+      </div>
+
+      {/* BUILDING FILTER */}
+      <div className="mb-4 flex items-center gap-3">
+        <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Building:</label>
+        <select
+          id="filter-building"
+          value={selectedBuildingId}
+          onChange={(e) => setSelectedBuildingId(e.target.value)}
+          className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Buildings</option>
+          {buildings.map((building) => (
+            <option key={String(building.id)} value={String(building.id)}>
+              {building.name} — {building.location}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
@@ -111,10 +158,12 @@ const ManagementRooms = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {rooms.map((room) => (
+              {filteredRooms.map((room) => (
                 <tr key={room.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{room.code}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{room.building_id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {buildingMap[String(room.building_id)]?.name || room.building_id}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{room.type}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{room.capacity}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -124,6 +173,13 @@ const ManagementRooms = () => {
                   </td>
                 </tr>
               ))}
+              {filteredRooms.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-400">
+                    No rooms found{selectedBuildingId ? " for the selected building" : ""}.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -146,14 +202,19 @@ const ManagementRooms = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Building ID</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Building</label>
+                <select
                   value={formData.building_id}
                   onChange={(e) => setFormData({ ...formData, building_id: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter building ID"
-                />
+                >
+                  <option value="" disabled>Select a Building</option>
+                  {buildings.map((building) => (
+                    <option key={String(building.id)} value={String(building.id)}>
+                      {building.name} — {building.location}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>

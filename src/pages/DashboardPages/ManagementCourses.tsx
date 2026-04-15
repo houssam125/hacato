@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getCourses, createCourse, updateCourse, type CourseRequest, type CourseResponse } from "@/API/Courses";
 import { usePopup } from "@/hooks/usePopup";
 import PopupContainer from "@/Components/ui/PopupContainer";
@@ -82,17 +82,17 @@ const ManagementCourses = () => {
   }
 
   return (
-    <div className="min-h-full flex flex-col bg-gray-100 p-6" dir="ltr">
+    <div className="min-h-full flex flex-col bg-gray-100 p-3 sm:p-6" dir="ltr">
       <PopupContainer popups={popups} onDismiss={dismiss} />
 
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Course Management</h1>
-          <p className="text-sm text-gray-500 mt-1">View, create, and update courses.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Course Management</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">View, create, and update courses.</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
         >
           Add New Course
         </button>

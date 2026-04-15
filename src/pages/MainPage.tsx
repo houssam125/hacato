@@ -213,7 +213,7 @@ const MainPage = () => {
 
       {/* HEADER */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-lg">E</span>
@@ -229,12 +229,12 @@ const MainPage = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* WELCOME */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome 👋</h2>
-          <p className="text-gray-500">Select your department, level, and group to view the timetable.</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Welcome 👋</h2>
+          <p className="text-gray-500 text-sm sm:text-base">Select your department, level, and group to view the timetable.</p>
         </div>
 
         {/* SELECTORS */}
@@ -301,8 +301,8 @@ const MainPage = () => {
         {!loadingTimetable && selectedGroupId && sessions.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             {/* Download button */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-800">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-800">
                 Timetable — {groups.find((g) => g.id === selectedGroupId)?.name}
               </h3>
               <div className="flex items-center gap-2">
