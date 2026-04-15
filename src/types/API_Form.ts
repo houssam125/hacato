@@ -5,6 +5,14 @@ export interface ApiResponse<T> {
   data: T;
   error?: string;
 }
+export interface ApiResponsePagenation<T> {
+  totalPages?: number;
+  success: boolean;
+  count?: number;
+  message?: string;
+  data: T;
+  error?: string;
+}
 
 export interface ApiResponseJWT<T> {
   success: boolean;

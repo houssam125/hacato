@@ -19,7 +19,7 @@ const PopupContainer = ({ popups, onDismiss }: Props) => {
   return (
     <div className="fixed top-5 right-5 z-50 flex flex-col gap-3 w-80" dir="rtl">
       {popups.map(({ id, type, message }) => {
-        const s = styles[type];
+        const s = styles[type] || styles.info; // Fallback to 'info' if type is not found in the styles map
         return (
           <div
             key={id}

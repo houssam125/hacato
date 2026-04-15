@@ -10,7 +10,7 @@ interface FileInputProps {
 const FileInput = ({ label, name, value, onChange }: FileInputProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  // ✅ حساب الـ preview مباشرة بدون useEffect
+  // ✅ Compute preview directly without useEffect
   const preview = !value
     ? null
     : typeof value === "string"

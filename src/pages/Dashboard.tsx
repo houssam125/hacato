@@ -1,79 +1,54 @@
-import { verifyToken } from "@/API/Verifyauthentication";
-import { useEffect, useState } from "react";
+import { AdminSocketProvider } from "@/Context/AdminSocketContext/AdminSocketProvider";
+
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 
-
 const navItems = [
-  { label: "إدارة الحسابات",  path: "ManagementAccounts" },
-  { label: "إدارة المنتجات", path: "ManagementProducts" },
+ 
+  { label: "Building Management", path: "ManagementBuilding" },
+  { label: "Departments", path: "ManagementDepartments" },
+  { label: "Levels", path: "ManagementLevels" },
+  { label: "Rooms", path: "ManagementRooms" },
+  { label: "Teachers", path: "ManagementTeachers" },
+  { label: "Groups", path: "ManagementGroups" },
+  { label: "Courses", path: "ManagementCourses" },
+  { label: "TimeSlots", path: "ManagementTimeSlots" },
+  { label: "Sessions", path: "ManagementSessions" }
 ];
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      const payload = await verifyToken(token);
-
-      if (!payload) {
-        localStorage.removeItem("token");
-        navigate("/login");
-        return;
-      }
-
-      if (payload.role !== "admin") {
-        navigate("/");
-        return;
-      }
-
-      setChecking(false);
-
-    };
-
-    checkToken();
-  }, []);
+ 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  // لا تعرض شيئاً أثناء التحقق
-  if (checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-sm text-gray-400">جارٍ التحقق...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen bg-slate-50" dir="rtl">
+    <div className="flex min-h-screen bg-gray-100" dir="ltr">
 
-      <aside className="w-60 bg-white border-l border-gray-100 flex flex-col">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-sm">E</span>
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm">
+
+        {/* Logo */}
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+            <span className="text-white font-bold">E</span>
           </div>
+          <span className="font-semibold text-gray-700">Admin Panel</span>
         </div>
 
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `px-4 py-2.5 rounded-lg text-sm transition ${
+                `flex items-center px-4 py-2.5 rounded-lg text-sm transition font-medium
+                ${
                   isActive
-                    ? "bg-blue-50 text-blue-700 font-medium"
+                    ? "bg-blue-50 text-blue-700"
                     : "text-gray-600 hover:bg-gray-50"
                 }`
               }
@@ -83,19 +58,25 @@ const Dashboard = () => {
           ))}
         </nav>
 
+        {/* Logout */}
         <div className="px-3 py-4 border-t border-gray-100">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition text-right"
+            className="w-full px-4 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition font-medium"
           >
-            تسجيل الخروج
+            Logout
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-6">
-        <Outlet />
-      </main>
+      {/* Main Content */}
+      <AdminSocketProvider>
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 min-h-full">
+            <Outlet />
+          </div>
+        </main>
+      </AdminSocketProvider>
 
     </div>
   );

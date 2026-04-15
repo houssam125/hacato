@@ -1,7 +1,14 @@
 // API/Products.ts
+import API_BASE_URL from "@/API_BASE_URL";
+import type { ApiResponse } from "@/types/API_Form";
 
-import { dashboardApi } from "@/lib/APItoken";
-
+const getAuthHeaders = (): HeadersInit => {
+  const token = localStorage.getItem("token");
+  // Note: For multipart/form-data, we don't set Content-Type manually
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
 
 export interface ArticlesResponse {
   title: string;
@@ -36,12 +43,17 @@ const buildArticlesFormData = (product: ArticlesResponse | ArticlesRequest): For
 
 export const addProduct = async (product: ArticlesResponse): Promise<boolean> => {
   try {
-    const response = await dashboardApi.post("/articles", buildArticlesFormData(product), {
-      headers: { "Content-Type": "multipart/form-data" },
+    const res = await fetch(`${API_BASE_URL}/articles`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: buildArticlesFormData(product),
     });
-    return response.status === 200 || response.status === 201;
+    const data: ApiResponse<any> = await res.json();
+    if (data.success) return true;
+    console.error("❌ Add product error:", data.message);
+    return false;
   } catch (error) {
-    console.error("❌ خطأ في إضافة المنتج:", error);
+    console.error("❌ Add product error:", error);
     return false;
   }
 };
@@ -53,12 +65,15 @@ export const updateProduct = async (product: ArticlesRequest): Promise<boolean> 
     const formData = buildArticlesFormData(product);
     formData.append("id", product.id.toString());
 
-    const response = await dashboardApi.put("/products/update", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const res = await fetch(`${API_BASE_URL}/products/update`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: formData,
     });
-    return response.status === 200;
+    const data: ApiResponse<any> = await res.json();
+    return data.success;
   } catch (error) {
-    console.error("❌ خطأ في تعديل المنتج:", error);
+    console.error("❌ Update product error:", error);
     return false;
   }
 };
@@ -67,10 +82,14 @@ export const updateProduct = async (product: ArticlesRequest): Promise<boolean> 
 
 export const deleteProduct = async (id: number): Promise<boolean> => {
   try {
-    const response = await dashboardApi.delete(`/products/delete/${id}`);
-    return response.status === 200;
+    const res = await fetch(`${API_BASE_URL}/products/delete/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+    });
+    const data: ApiResponse<any> = await res.json();
+    return data.success;
   } catch (error) {
-    console.error("❌ خطأ في حذف المنتج:", error);
+    console.error("❌ Delete product error:", error);
     return false;
   }
 };

@@ -12,10 +12,10 @@ i18n
       en: { translation: en },
       ar: { translation: ar },
     },
-    lng: "en", // اللغة الافتراضية
+    lng: "en", // default language
     fallbackLng: "en",
     interpolation: {
-      escapeValue: false, // React يحمي من XSS
+      escapeValue: false, // React protects from XSS
     },
   });
 

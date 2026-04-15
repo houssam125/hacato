@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import PopupContainer from "@/Components/ui/PopupContainer";
 import { usePopup } from "@/hooks/usePopup";
 import FileInput from "@/Components/ui/FileInput";
@@ -8,16 +7,16 @@ import { addProduct } from "@/API/Addproduct";
 const AddProducts = () => {
   const { popups, show, dismiss } = usePopup();
 
-  const [title, setTitle]             = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [img, setImg]                 = useState<File | null>(null);
-  const [loading, setLoading]         = useState(false);
+  const [img, setImg] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!img) {
-      show("يرجى اختيار صورة", "warning");
+      show("Please select an image", "warning");
       return;
     }
 
@@ -26,65 +25,77 @@ const AddProducts = () => {
     setLoading(false);
 
     if (!success) {
-      show("فشل إضافة المقال، حاول مجدداً", "error");
+      show("Failed to add product. Please try again.", "error");
       return;
     }
 
-    show("تم إضافة المقال بنجاح", "success");
+    show("Product added successfully!", "success");
+
     setTitle("");
     setDescription("");
-    setImg(null);       // ← يمسح الـ preview تلقائياً عبر useEffect في FileInput
+    setImg(null);
   };
 
   return (
-    <div dir="rtl">
+    <div className="min-h-full bg-gray-100 p-6" dir="ltr">
+
       <PopupContainer popups={popups} onDismiss={dismiss} />
 
+      {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">إضافة مقال</h1>
-        <p className="text-sm text-gray-500 mt-1">أضف مقالاً جديداً من هنا.</p>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Add New Product
+        </h1>
+
+        <p className="text-sm text-gray-500 mt-1">
+          Create a new product by filling the form below.
+        </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 p-8 max-w-xl shadow-sm">
+      {/* Form Card */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl">
+
         <form onSubmit={handleSubmit} className="space-y-5">
 
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              العنوان
+              Product Title
             </label>
+
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="عنوان المقال"
+              placeholder="Enter product title"
               className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         placeholder:text-gray-400 transition"
+                         focus:outline-none focus:ring-2 focus:ring-blue-500
+                         focus:border-transparent transition"
             />
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              الوصف
+              Description
             </label>
+
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              placeholder="وصف المقال"
+              placeholder="Enter product description"
               className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         placeholder:text-gray-400 transition resize-none"
+                         focus:outline-none focus:ring-2 focus:ring-blue-500
+                         focus:border-transparent transition resize-none"
             />
           </div>
 
-          {/* Image — استخدام FileInput */}
+          {/* Image */}
           <FileInput
-            label="صورة المقال"
+            label="Product Image"
             name="img"
             value={img}
             onChange={(file) => setImg(file)}
@@ -97,11 +108,12 @@ const AddProducts = () => {
             className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400
                        text-white text-sm font-medium rounded-lg transition"
           >
-            {loading ? "جارٍ الإضافة..." : "إضافة المقال"}
+            {loading ? "Creating..." : "Add Product"}
           </button>
 
         </form>
       </div>
+
     </div>
   );
 };

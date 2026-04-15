@@ -32,7 +32,7 @@ export const login = async ( payload: LoginRequestPayload ): Promise<LoginAPIRes
       body: JSON.stringify(payload),
     });
 
-    console.log("🔍 استجابة تسجيل الدخول:", response);
+    console.log("🔍 Login response:", response);
 
     if (!response.ok) {
       return null;
@@ -44,12 +44,12 @@ export const login = async ( payload: LoginRequestPayload ): Promise<LoginAPIRes
       return null;
     }
 
-    // حفظ التوكن فقط
+    // Save token only
     localStorage.setItem("token", data.token);
 
     return data.data;
   } catch (error) {
-    console.error("❌ خطأ في تسجيل الدخول:", error);
+    console.error("❌ Login error:", error);
     return null;
   }
 };

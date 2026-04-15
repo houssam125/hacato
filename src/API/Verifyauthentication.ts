@@ -17,15 +17,15 @@ export const verifyToken = async (token: string): Promise<ITokenPayload | null> 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
-      console.warn("❌ Token غير صالح:", result.message);
+      console.warn("❌ Invalid token:", result.message);
       return null;
     }
 
-    // النتيجة من السيرفر تحتوي على role فقط
-    // لو أردت ترجع الـ payload كامل عدّل السيرفر
+    // The server result contains only role
+    // If you want the full payload, modify the server
     return result.data as ITokenPayload;
   } catch (error) {
-    console.error("❌ خطأ أثناء التحقق من التوكن:", error);
+    console.error("❌ Token verification error:", error);
     return null;
   }
 };

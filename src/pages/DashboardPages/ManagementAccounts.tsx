@@ -1,20 +1,31 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
 
+const ManagementAccounts = () => {
+  return (
+    <div className="min-h-full flex flex-col bg-gray-100 p-6" dir="ltr">
 
-const ManagementAccounts = () =>{
-    return(
-        <div className="ManagementAccounts">
-            <h1>إدارة الحسابات</h1>
-            <p>هذه صفحة إدارة الحسابات الخاصة بك.</p>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Account Management
+        </h1>
 
+        <p className="text-sm text-gray-500 mt-1">
+          Manage users, roles, and account permissions from this section.
+        </p>
+      </div>
 
-           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50">
-            <Outlet />
-          </main>
-        </div>
+      {/* Content Container */}
+      <div className="flex-1 bg-white rounded-xl border border-gray-100 shadow-sm p-5 overflow-hidden">
 
-    )
-}
+        <main className="h-full overflow-y-auto">
+          <Outlet />
+        </main>
 
+      </div>
 
-export default ManagementAccounts ;
+    </div>
+  );
+};
+
+export default ManagementAccounts;

@@ -2,16 +2,16 @@ import API_BASE_URL from "@/API_BASE_URL";
 import axios from "axios";
 
 export const dashboardApi = axios.create({
-  baseURL: API_BASE_URL, // رابط الـ API
+  baseURL: API_BASE_URL, // API base URL
 });
 
-// إضافة Authorization Bearer Token تلقائياً
+// Automatically add Authorization Bearer Token
 dashboardApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token"); // استخدم نفس التوكن
+  // const token = localStorage.getItem("token"); // reuse the same token
 
-  if (token) {
-    config.headers["Authorization"] = `Bearer ${token}`;
-  }
+  // if (token) {
+  //   config.headers["Authorization"] = `Bearer ${token}`;
+  // }
 
   return config;
 });
