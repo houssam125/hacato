@@ -44,6 +44,21 @@ export const getSessions = async (): Promise<SessionResponse[] | null> => {
   }
 };
 
+export const getSessionsByGroup = async (groupId: string): Promise<SessionResponse[] | null> => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/sessions`, { headers: getAuthHeaders() });
+    const data: ApiResponse<SessionResponse[]> = await res.json();
+    if (data.success) {
+      return data.data.filter((s) => String(s.group_id) === String(groupId));
+    }
+    console.error("❌ Fetch sessions by group error:", data.message);
+    return null;
+  } catch (error) {
+    console.error("❌ Fetch sessions by group error:", error);
+    return null;
+  }
+};
+
 export const createSession = async (session: SessionRequest): Promise<SessionResponse | null> => {
   try {
     const res = await fetch(`${API_BASE_URL}/sessions`, {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getSessions, type SessionResponse } from "@/API/Sessions";
 import { getTimeSlots, type TimeSlotResponse } from "@/API/TimeSlots";
 import { getCourses, type CourseResponse } from "@/API/Courses";
@@ -122,27 +122,74 @@ const ManagementTimeSlots: React.FC = () => {
     }
   };
 
+  // ================= CSV DOWNLOAD =================
+  const downloadCSV = useCallback(() => {
+    const headers = ["Slot Index", "Day", "Start Time", "End Time", "Type", "Course", "Teacher", "Room", "Group"];
+
+    const rows = filteredSessions.map((session) => {
+      const slot = timeslotMap[session.timeslot_id || ""];
+      return [
+        slot?.slot_index ?? "",
+        slot?.day ?? "",
+        slot?.start_time ?? "",
+        slot?.end_time ?? "",
+        session.type,
+        courseMap[session.course_id]?.name || "",
+        teacherMap[session.teacher_id]?.name || "",
+        roomMap[session.room_id || ""]?.code || "",
+        groupMap[session.group_id]?.name || session.group_id,
+      ];
+    });
+
+    // Sort by slot_index then day
+    rows.sort((a, b) => Number(a[0]) - Number(b[0]) || String(a[1]).localeCompare(String(b[1])));
+
+    const escape = (val: unknown) => {
+      const str = String(val ?? "");
+      return str.includes(",") || str.includes('"') ? `"${str.replace(/"/g, '""')}"` : str;
+    };
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const groupName = selectedGroupId ? groupMap[selectedGroupId]?.name || "group" : "all_groups";
+    link.download = `timetable_${groupName}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [filteredSessions, timeslotMap, courseMap, teacherMap, roomMap, groupMap, selectedGroupId]);
+
   if (loading)
     return <div className="p-4 text-center">Loading Timetable...</div>;
 
   // ================= UI =================
   return (
     <div className="overflow-x-auto p-4">
-      {/* GROUP FILTER */}
-      <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Filter by Group:</label>
-        <select
-          value={selectedGroupId}
-          onChange={(e) => setSelectedGroupId(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {/* GROUP FILTER + DOWNLOAD */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Filter by Group:</label>
+          <select
+            value={selectedGroupId}
+            onChange={(e) => setSelectedGroupId(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Groups</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={downloadCSV}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
         >
-          <option value="">All Groups</option>
-          {groups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
+          📥 Download CSV
+        </button>
       </div>
 
       <table className="min-w-full border-collapse border border-gray-300 shadow-sm rounded-lg overflow-hidden">

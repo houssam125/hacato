@@ -20,6 +20,7 @@ import ManagementCourses from "./pages/DashboardPages/ManagementCourses.tsx";
 import ManagementTimeSlots from "./pages/DashboardPages/ManagementTimeSlots.tsx";
 import ManagementSessions from "./pages/DashboardPages/ManagementSessions.tsx";
 import Building from "./pages/DashboardPages/MangmetBuilding/Building.tsx";
+import Teacher from "./pages/Teacher.tsx";
 
 import { usePopup } from "./hooks/usePopup.ts";
 import PopupContainer from "./Components/ui/PopupContainer.tsx";
@@ -59,6 +60,11 @@ const  App =() => {
             <Route path="ManagementCourses" element={<ManagementCourses />} />
             <Route path="ManagementTimeSlots" element={<ManagementTimeSlots />} />
             <Route path="ManagementSessions" element={<ManagementSessions />} />
+          </Route>
+
+          {/* === Teacher pages === */}
+          <Route path="/teacher" element={<Teacher />}>
+            <Route path="ManagementTimeSlots" element={<ManagementTimeSlots />} />
           </Route>
 
           {/* ✅ 404 must be last */}

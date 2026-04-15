@@ -25,9 +25,18 @@ const Login = () => {
       return;
     }
 
+    // Save role for route protection
+    localStorage.setItem("role", user.role);
+
     if (user.role === "admin") {
       show("Login successful!", "success");
       navigate("/dashboard");
+      return;
+    }
+
+    if (user.role === "teacher") {
+      show("Login successful!", "success");
+      navigate("/teacher");
       return;
     }
 
